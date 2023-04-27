@@ -14,6 +14,7 @@ import (
 
 func main() {
 	ctx := context.Background()
+	// set env variables
 	err := godotenv.Load(".env")
 	if err != nil {
 		logger.Debug(ctx, logconst.Layer, logconst.MainLayer, "NewRouterError", err)
@@ -22,8 +23,8 @@ func main() {
 	// set global log level
 	logger.SetLevel(logger.DebugLevel)
 
+	// init mux router
 	r := mux.NewRouter()
-
 	err = endpoints.NewRoute(r)
 	if err != nil {
 		logger.Debug(ctx, logconst.Layer, logconst.MainLayer, "NewRouterError", err)

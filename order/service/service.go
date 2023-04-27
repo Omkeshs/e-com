@@ -28,6 +28,13 @@ var orderMap = map[int32]spec.Order{}
 
 // ListOrder - to fetch existing order list
 func ListOrder(w http.ResponseWriter, r *http.Request) {
+	// Check if empty product list
+	if len(orderMap) == 0 {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("empty product list"))
+		return
+	}
+
 	json.NewEncoder(w).Encode(orderMap)
 }
 
@@ -109,7 +116,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		orderResp.Status = svcparams.Placed
 	}
 
-	// check if discount applicable
+	// 4. check if discount applicable
 	if premiumCartCount >= svcparams.PremiumTypeDiscountCount {
 		orderResp.Discount = orderResp.Amount / svcparams.PremiumTypeDiscount
 		orderResp.FinalAmount = orderResp.Amount - orderResp.Discount
@@ -119,7 +126,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 
 	orderMap[orderResp.ID] = orderResp
 
-	// Update Product list
+	// 5. Update Product list
 	updateProdReq := []spec.UpdateProductRequest{}
 	for productID, productQuantity := range updateProdMap {
 		uProd := spec.UpdateProductRequest{
@@ -136,6 +143,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 6. Call to product service to update product quantity
 	updateProdReqURL := fmt.Sprintf(os.Getenv("LOCALHOSTURL")+"%s%s", os.Getenv("PRODUCTSVCPORT"), os.Getenv("PRODUCTSVCNAME"))
 	req, err := http.NewRequest(http.MethodPut, updateProdReqURL, bytes.NewBuffer(body))
 	if err != nil {
@@ -164,6 +172,8 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	orderReq := spec.UpdateOrderRequest{}
 	vars := mux.Vars(r)
 	var err error
+
+	// 1. get orderID from updateURL
 	orderReq.ID, err = svcutils.GetIntPathVariable(vars, svcparams.OrderID)
 	if err != nil {
 		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "Failed to decode body", err)
@@ -171,6 +181,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Failed to decode body"))
 		return
 	}
+	// 2. decode Update request
 	err = json.NewDecoder(r.Body).Decode(&orderReq)
 	if err != nil {
 		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "Failed to decode body", err)
@@ -179,6 +190,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 3. Check order are exist in map
 	order, isExist := orderMap[orderReq.ID]
 	if !isExist {
 		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "order does not exist", err)
@@ -187,6 +199,7 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 4. if order status was "Dispatched" then set DispatchedDate
 	if strings.EqualFold(orderReq.Status, svcparams.Dispatched) {
 		y, m, d := time.Now().Date()
 		order.DispatchedDate = fmt.Sprintf("%d:%d:%d", d, m, y)
