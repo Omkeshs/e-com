@@ -75,6 +75,7 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var premiumCartCount int
+	var orderCount int32
 	orderResp := spec.Order{}
 	updateProdMap := map[int32]int32{}
 	itemMap := map[int32]int32{}
@@ -88,9 +89,10 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		} else {
+			orderCount += item.Quantity
 			itemMap[item.ID] += item.Quantity
 			// check max limit and inventory
-			if product.Quantity < item.Quantity || itemMap[item.ID] > 10 {
+			if product.Quantity < item.Quantity || itemMap[item.ID] > 10 || orderCount > 10 || item.Quantity == 0 {
 				logger.Debug("invalid quantity")
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte("invalid item quantity / no stock available"))
