@@ -32,6 +32,7 @@ func ListOrder(w http.ResponseWriter, r *http.Request) {
 	if len(orderMap) == 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("empty product list"))
+		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "empty product list")
 		return
 	}
 

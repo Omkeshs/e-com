@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/go-kit/log v0.2.1 // indirect
+	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 )
