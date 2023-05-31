@@ -1,20 +1,20 @@
-FROM ubuntu:latest
+FROM ubuntu:latest as builder
+
 RUN apt-get update -y
+RUN apt install git -y
+RUN git clone https://github.com/Omkeshs/e-com.git
 
 # Build stage
-FROM golang:1.20.4-alpine3.18 as build
+FROM golang:1.20.4-alpine3.18 as bin_builder
 WORKDIR /app
-COPY . .
-# ENV GOROOT="/usr/local/go"
+COPY --from=builder /e-com/order/ .
+
 ENV GO111MODULE=on
-ENV GOPATH="/app/order/go.mod"
 RUN CGO_ENABLED=0 go build -o main cmd/main.go
 
 # Run stage
-FROM alpine:3.14
+FROM alpine:3.17
 WORKDIR /app
-COPY --from=build /app/main .
+COPY --from=bin_builder /app/main .
 
-
-EXPOSE 8080
 CMD [ "/app/main" ]
