@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  ordersvc:
+    # image: ordersvc:latest  
+    build: ./order
+    restart: always
+    ports:
+      - 8080:8080
+    working_dir: /app
+  productsvc:
+    # image: productsvc:latest
+    build: ./product
+    restart: always
+    ports:
+      - 8000:8000
+    working_dir: /app

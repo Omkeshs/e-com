@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"practice/ecom/order/spec"
 	"practice/ecom/order/svcparams"
 	"practice/ecom/order/svcutils"
@@ -28,11 +27,11 @@ var orderMap = map[int32]spec.Order{}
 
 // ListOrder - to fetch existing order list
 func ListOrder(w http.ResponseWriter, r *http.Request) {
-	// Check if empty product list
+	// Check if empty order list
 	if len(orderMap) == 0 {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("empty product list"))
-		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "empty product list")
+		w.Write([]byte("empty order list"))
+		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "empty order list")
 		return
 	}
 
@@ -59,8 +58,10 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Get Product map from product service
-	requestURL := fmt.Sprintf("%s%s%s", os.Getenv("LOCALHOSTURL"), os.Getenv("PRODUCTSVCPORT"), os.Getenv("PRODUCTSVCNAME"))
-	res, err := http.Get(requestURL)
+	// TODO use env params @omkesh
+	// requestURL := fmt.Sprintf("%s%s%s", os.Getenv("LOCALHOSTURL"), os.Getenv("PRODUCTSVCPORT"), os.Getenv("PRODUCTSVCNAME"))
+	res, err := http.Get("http://productsvc:8000/product")
+
 	if err != nil {
 		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "Failed to get product list", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -147,8 +148,9 @@ func PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 6. Call to product service to update product quantity
-	updateProdReqURL := fmt.Sprintf(os.Getenv("LOCALHOSTURL")+"%s%s", os.Getenv("PRODUCTSVCPORT"), os.Getenv("PRODUCTSVCNAME"))
-	req, err := http.NewRequest(http.MethodPut, updateProdReqURL, bytes.NewBuffer(body))
+	// TODO use env params @omkesh
+	// updateProdReqURL := fmt.Sprintf(os.Getenv("LOCALHOSTURL")+"%s%s", os.Getenv("PRODUCTSVCPORT"), os.Getenv("PRODUCTSVCNAME"))
+	req, err := http.NewRequest(http.MethodPut, "http://productsvc:8000/product", bytes.NewBuffer(body))
 	if err != nil {
 		logger.Debug(svcparams.Layer, svcparams.RouterLayer, "Failed to update product list", err)
 		w.WriteHeader(http.StatusInternalServerError)
