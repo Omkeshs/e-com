@@ -1,15 +1,17 @@
 version: "3.9"
 services:
   ordersvc:
-    # image: ordersvc:latest  
-    build: ./order
+    # image: ordersvc:latest  #uncommnt and run from local image
+    # build: ./order #uncommnt and run from local code
+    build: https://github.com/Omkeshs/e-com.git
     restart: always
     ports:
       - 8080:8080
     working_dir: /app
   productsvc:
-    # image: productsvc:latest
-    build: ./product
+    # image: productsvc:latest #uncommnt and run from local image
+    # build: ./product #uncommnt and run from local code
+    build: https://github.com/Omkeshs/e-com.git
     restart: always
     ports:
       - 8000:8000
