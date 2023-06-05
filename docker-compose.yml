@@ -3,16 +3,18 @@ services:
   ordersvc:
     # image: ordersvc:latest  #uncommnt and run from local image
     # build: ./order #uncommnt and run from local code
-    build: https://github.com/Omkeshs/e-com.git
-    restart: always
+    build:
+      context: https://github.com/Omkeshs/e-com.git
+      dockerfile: ./order/Dockerfile
     ports:
       - 8080:8080
-    working_dir: /app
+
   productsvc:
     # image: productsvc:latest #uncommnt and run from local image
     # build: ./product #uncommnt and run from local code
-    build: https://github.com/Omkeshs/e-com.git
+    build:
+      context: https://github.com/Omkeshs/e-com.git
+      dockerfile: ./product/Dockerfile
     restart: always
     ports:
       - 8000:8000
-    working_dir: /app
